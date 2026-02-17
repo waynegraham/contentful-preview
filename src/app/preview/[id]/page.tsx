@@ -16,6 +16,7 @@ import {
   buildPreviewQueryString,
   normalizePreviewQuery,
 } from "@/lib/previewQuery";
+import { looksLikeHtml, sanitizeBasicHtml } from "@/lib/sanitizeHtml";
 
 type DetailPageProps = {
   params: Promise<{ id: string }>;
@@ -60,6 +61,32 @@ function formatDate(value: string): string {
 
 function withFallback(value: string): string {
   return value || "-";
+}
+
+function renderFieldValue(value: string, type: string, dir?: "rtl" | "ltr") {
+  if (!value) {
+    return <span>-</span>;
+  }
+
+  if (type === "Text") {
+    if (looksLikeHtml(value)) {
+      return (
+        <div
+          className="leading-6 [&_a]:text-sky-700 [&_a]:underline [&_li]:ml-4 [&_p]:mb-2"
+          dir={dir}
+          dangerouslySetInnerHTML={{ __html: sanitizeBasicHtml(value) }}
+        />
+      );
+    }
+
+    return (
+      <div className="whitespace-pre-line leading-6" dir={dir}>
+        {value}
+      </div>
+    );
+  }
+
+  return <span dir={dir}>{value}</span>;
 }
 
 export default async function PreviewDetailPage({ params, searchParams }: DetailPageProps) {
@@ -209,9 +236,9 @@ export default async function PreviewDetailPage({ params, searchParams }: Detail
                   <p className="font-medium text-slate-900">{field.name}</p>
                   <p className="text-xs text-slate-500">{field.id}</p>
                 </div>
-                <div className="px-4 py-3 text-slate-700">{withFallback(englishValue)}</div>
+                <div className="px-4 py-3 text-slate-700">{renderFieldValue(englishValue, field.type, "ltr")}</div>
                 <div className="px-4 py-3 text-slate-700" dir="rtl">
-                  {withFallback(arabicValue)}
+                  {renderFieldValue(arabicValue, field.type, "rtl")}
                 </div>
               </div>
             );

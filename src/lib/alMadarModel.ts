@@ -4,6 +4,7 @@ type RawModelField = {
   id?: string;
   name?: string;
   localized?: boolean;
+  type?: string;
 };
 
 const rawFields = (model.fields as RawModelField[]).filter(
@@ -18,4 +19,5 @@ export const alMadarFields = rawFields.map((field) => ({
   id: field.id,
   name: field.name,
   localized: Boolean(field.localized),
+  type: field.type ?? "Symbol",
 }));
