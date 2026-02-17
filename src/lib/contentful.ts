@@ -286,6 +286,17 @@ export function getFieldValueByLocale(
 }
 
 export function getSingleFieldValue(rawField: unknown): string {
+  if (rawField && typeof rawField === "object" && !Array.isArray(rawField)) {
+    const objectValues = Object.values(rawField as Record<string, unknown>);
+    const firstNonEmptyValue = objectValues.find(
+      (value) => value !== null && value !== undefined && value !== "",
+    );
+
+    if (firstNonEmptyValue !== undefined) {
+      return toDisplayValue(firstNonEmptyValue);
+    }
+  }
+
   return toDisplayValue(rawField);
 }
 

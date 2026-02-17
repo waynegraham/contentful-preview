@@ -3,15 +3,23 @@ import { notFound } from "next/navigation";
 
 import { alMadarDisplayField, alMadarFields } from "@/lib/alMadarModel";
 import {
+  PAGE_SIZE,
   getEditorUrl,
   getEntryContentStatus,
   getFieldValueByLocale,
   getPreviewEntry,
+  getPreviewEntries,
   getSingleFieldValue,
 } from "@/lib/contentful";
+import {
+  type SearchParams,
+  buildPreviewQueryString,
+  normalizePreviewQuery,
+} from "@/lib/previewQuery";
 
 type DetailPageProps = {
   params: Promise<{ id: string }>;
+  searchParams: Promise<SearchParams>;
 };
 
 function editorialPillClass(status: string): string {
@@ -54,8 +62,11 @@ function withFallback(value: string): string {
   return value || "-";
 }
 
-export default async function PreviewDetailPage({ params }: DetailPageProps) {
+export default async function PreviewDetailPage({ params, searchParams }: DetailPageProps) {
   const { id } = await params;
+  const resolvedSearchParams = await searchParams;
+  const { page, search, editorialStatus: queryEditorialStatus, sort } = normalizePreviewQuery(resolvedSearchParams);
+  const currentQueryString = buildPreviewQueryString({ page, search, editorialStatus: queryEditorialStatus, sort });
 
   let entry;
   try {
@@ -76,8 +87,39 @@ export default async function PreviewDetailPage({ params }: DetailPageProps) {
     ),
   );
 
-  const editorialStatus = withFallback(getSingleFieldValue(entry.fields.editorialStatus));
+  const entryEditorialStatus = withFallback(getSingleFieldValue(entry.fields.editorialStatus));
   const contentStatus = getEntryContentStatus(entry);
+  const listResponse = await getPreviewEntries({ page, search, editorialStatus: queryEditorialStatus, sort });
+  const entryIndex = listResponse.items.findIndex((item) => item.id === id);
+  const totalPages = Math.max(1, Math.ceil(listResponse.total / PAGE_SIZE));
+
+  let previousEntry = entryIndex > 0 ? listResponse.items[entryIndex - 1] : undefined;
+  let nextEntry =
+    entryIndex >= 0 && entryIndex < listResponse.items.length - 1 ? listResponse.items[entryIndex + 1] : undefined;
+  let previousPage = page;
+  let nextPage = page;
+
+  if (!previousEntry && entryIndex === 0 && page > 1) {
+    const previousPageResponse = await getPreviewEntries({
+      page: page - 1,
+      search,
+      editorialStatus: queryEditorialStatus,
+      sort,
+    });
+    previousEntry = previousPageResponse.items[previousPageResponse.items.length - 1];
+    previousPage = page - 1;
+  }
+
+  if (!nextEntry && entryIndex === listResponse.items.length - 1 && page < totalPages) {
+    const nextPageResponse = await getPreviewEntries({
+      page: page + 1,
+      search,
+      editorialStatus: queryEditorialStatus,
+      sort,
+    });
+    nextEntry = nextPageResponse.items[0];
+    nextPage = page + 1;
+  }
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-10 sm:px-8">
@@ -90,8 +132,8 @@ export default async function PreviewDetailPage({ params }: DetailPageProps) {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${editorialPillClass(editorialStatus)}`}>
-              {editorialStatus}
+            <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${editorialPillClass(entryEditorialStatus)}`}>
+              {entryEditorialStatus}
             </span>
             <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${contentStatusPillClass(contentStatus)}`}>
               {contentStatus}
@@ -100,9 +142,39 @@ export default async function PreviewDetailPage({ params }: DetailPageProps) {
         </div>
 
         <div className="mt-4 flex flex-wrap gap-4 text-sm">
-          <Link className="text-sky-700 hover:underline" href="/preview">
+          <Link className="text-sky-700 hover:underline" href={`/preview${currentQueryString}`}>
             Back to list
           </Link>
+          {previousEntry ? (
+            <Link
+              className="text-sky-700 hover:underline"
+              href={`/preview/${previousEntry.id}${buildPreviewQueryString({
+                page: previousPage,
+                search,
+                editorialStatus: queryEditorialStatus,
+                sort,
+              })}`}
+            >
+              Previous item
+            </Link>
+          ) : (
+            <span className="text-slate-400">Previous item</span>
+          )}
+          {nextEntry ? (
+            <Link
+              className="text-sky-700 hover:underline"
+              href={`/preview/${nextEntry.id}${buildPreviewQueryString({
+                page: nextPage,
+                search,
+                editorialStatus: queryEditorialStatus,
+                sort,
+              })}`}
+            >
+              Next item
+            </Link>
+          ) : (
+            <span className="text-slate-400">Next item</span>
+          )}
           <a className="text-sky-700 hover:underline" href={getEditorUrl(entry.id)} rel="noreferrer" target="_blank">
             Edit in Contentful
           </a>

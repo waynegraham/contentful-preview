@@ -1,8 +1,11 @@
 import Link from "next/link";
 
 import { PAGE_SIZE, getEditorUrl, getPreviewEntries } from "@/lib/contentful";
-
-type SearchParams = Record<string, string | string[] | undefined>;
+import {
+  type SearchParams,
+  buildPreviewQueryString,
+  normalizePreviewQuery,
+} from "@/lib/previewQuery";
 
 type PreviewListPageProps = {
   searchParams?: Promise<SearchParams>;
@@ -18,19 +21,6 @@ const SORT_OPTIONS = [
 ];
 
 const KNOWN_EDITORIAL_STATUSES = ["Needs Review", "Reviewed"];
-
-function asString(value: string | string[] | undefined): string {
-  if (Array.isArray(value)) {
-    return value[0] ?? "";
-  }
-
-  return value ?? "";
-}
-
-function parsePage(value: string): number {
-  const parsed = Number.parseInt(value, 10);
-  return Number.isNaN(parsed) || parsed < 1 ? 1 : parsed;
-}
 
 function formatDate(value: string): string {
   return new Intl.DateTimeFormat("en-US", {
@@ -68,41 +58,10 @@ function contentStatusPillClass(status: string): string {
   }
 }
 
-function buildQueryString(query: {
-  page: number;
-  search?: string;
-  editorialStatus?: string;
-  sort?: string;
-}): string {
-  const params = new URLSearchParams();
-
-  if (query.page > 1) {
-    params.set("page", String(query.page));
-  }
-
-  if (query.search) {
-    params.set("q", query.search);
-  }
-
-  if (query.editorialStatus && query.editorialStatus !== "all") {
-    params.set("editorialStatus", query.editorialStatus);
-  }
-
-  if (query.sort && query.sort !== "updated-desc") {
-    params.set("sort", query.sort);
-  }
-
-  const queryString = params.toString();
-  return queryString ? `?${queryString}` : "";
-}
-
 export default async function PreviewListPage({ searchParams }: PreviewListPageProps) {
   const params = searchParams ? await searchParams : {};
-
-  const page = parsePage(asString(params.page));
-  const search = asString(params.q).trim();
-  const editorialStatus = asString(params.editorialStatus).trim();
-  const sort = asString(params.sort).trim() || "updated-desc";
+  const { page, search, editorialStatus, sort } = normalizePreviewQuery(params);
+  const currentQueryString = buildPreviewQueryString({ page, search, editorialStatus, sort });
 
   const response = await getPreviewEntries({
     page,
@@ -192,7 +151,7 @@ export default async function PreviewListPage({ searchParams }: PreviewListPageP
               {response.items.map((entry) => (
                 <tr key={entry.id}>
                   <td className="px-4 py-3 font-medium text-slate-900">
-                    <Link className="hover:underline" href={`/preview/${entry.id}`}>
+                    <Link className="hover:underline" href={`/preview/${entry.id}${currentQueryString}`}>
                       {entry.title}
                     </Link>
                   </td>
@@ -233,7 +192,7 @@ export default async function PreviewListPage({ searchParams }: PreviewListPageP
               ? "pointer-events-none border-slate-200 text-slate-400"
               : "border-slate-300 text-slate-700 hover:bg-slate-100"
           }`}
-          href={`/preview${buildQueryString({ page: prevPage, search, editorialStatus, sort })}`}
+          href={`/preview${buildPreviewQueryString({ page: prevPage, search, editorialStatus, sort })}`}
         >
           Previous
         </Link>
@@ -248,7 +207,7 @@ export default async function PreviewListPage({ searchParams }: PreviewListPageP
               ? "pointer-events-none border-slate-200 text-slate-400"
               : "border-slate-300 text-slate-700 hover:bg-slate-100"
           }`}
-          href={`/preview${buildQueryString({ page: nextPage, search, editorialStatus, sort })}`}
+          href={`/preview${buildPreviewQueryString({ page: nextPage, search, editorialStatus, sort })}`}
         >
           Next
         </Link>
