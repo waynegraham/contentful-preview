@@ -5,6 +5,7 @@ import { alMadarDisplayField, alMadarFields } from "@/lib/alMadarModel";
 import {
   PAGE_SIZE,
   type PreviewEntryResponse,
+  getAllPreviewEntryIds,
   getEditorUrl,
   getEntryContentStatus,
   getFieldValueByLocale,
@@ -162,6 +163,11 @@ function renderFieldValue(value: string, type: string, dir?: "rtl" | "ltr") {
   }
 
   return <span dir={dir}>{value}</span>;
+}
+
+export async function generateStaticParams() {
+  const ids = await getAllPreviewEntryIds();
+  return ids.map((id) => ({ id }));
 }
 
 export default async function PreviewDetailPage({ params, searchParams }: DetailPageProps) {

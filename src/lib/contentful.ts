@@ -21,6 +21,13 @@ type ContentfulListResponse = {
   items: ContentfulEntry[];
 };
 
+type ContentfulIdListResponse = {
+  total: number;
+  skip: number;
+  limit: number;
+  items: Array<{ sys: { id: string } }>;
+};
+
 type ContentfulSingleResponse = ContentfulEntry;
 
 type ContentfulLocale = {
@@ -258,6 +265,31 @@ export async function getPreviewEntries(query: ListQuery): Promise<PreviewListRe
     page,
     pageSize: PAGE_SIZE,
   };
+}
+
+export async function getAllPreviewEntryIds(): Promise<string[]> {
+  const localeConfig = await getLocaleConfig();
+  const limit = 1000;
+  let skip = 0;
+  let total = 0;
+  const ids: string[] = [];
+
+  do {
+    const searchParams = new URLSearchParams({
+      content_type: contentType,
+      locale: localeConfig.defaultLocale,
+      select: "sys.id",
+      limit: String(limit),
+      skip: String(skip),
+    });
+
+    const response = await contentfulFetch<ContentfulIdListResponse>("/entries", searchParams);
+    ids.push(...response.items.map((item) => item.sys.id));
+    total = response.total;
+    skip += response.items.length;
+  } while (skip < total);
+
+  return [...new Set(ids)];
 }
 
 export async function getPreviewEntry(entryId: string): Promise<PreviewEntryResponse> {

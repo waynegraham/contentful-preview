@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { getAllPreviewEntryIds } from "@/lib/contentful";
 import type { SearchParams } from "@/lib/previewQuery";
 
 type PreviewDetailRedirectPageProps = {
@@ -13,6 +14,11 @@ function firstValue(value: string | string[] | undefined): string {
   }
 
   return value ?? "";
+}
+
+export async function generateStaticParams() {
+  const ids = await getAllPreviewEntryIds();
+  return ids.map((id) => ({ id }));
 }
 
 export default async function PreviewDetailRedirectPage({
