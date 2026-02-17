@@ -41,5 +41,6 @@ Important: GitHub Pages is static hosting. Content is fetched at build time, so 
 
 ### Routes
 
-- `/preview` and `/`: landing list with search/filter/sort + 50-item pagination
-- `/preview/:id`: entry detail with English/Arabic side-by-side metadata in model order
+- `/`: landing list with search/filter/sort + 50-item pagination
+- `/:id`: entry detail with English/Arabic side-by-side metadata in model order
+- `/preview` and `/preview/:id`: compatibility redirects/routes

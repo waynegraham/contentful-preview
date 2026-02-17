@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import PreviewListPage from "@/app/preview/preview-list-page";
 
 export default function HomePage() {
-  redirect("/preview");
+  return <PreviewListPage />;
 }

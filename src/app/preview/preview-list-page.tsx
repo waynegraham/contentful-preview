@@ -84,7 +84,7 @@ export default async function PreviewListPage({ searchParams }: PreviewListPageP
           Internal read-only preview for editorial review. Showing {response.items.length} of {response.total} entries.
         </p>
 
-        <form className="mt-6 grid gap-3 md:grid-cols-5" action="/preview" method="get">
+        <form className="mt-6 grid gap-3 md:grid-cols-5" action="/" method="get">
           <input
             type="text"
             name="q"
@@ -126,7 +126,7 @@ export default async function PreviewListPage({ searchParams }: PreviewListPageP
           </button>
 
           <Link
-            href="/preview"
+            href="/"
             className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
           >
             Reset filters
@@ -158,7 +158,7 @@ export default async function PreviewListPage({ searchParams }: PreviewListPageP
               {response.items.map((entry) => (
                 <tr key={entry.id}>
                   <td className="px-4 py-3 font-medium text-slate-900">
-                    <Link className="hover:underline" href={`/preview/${entry.id}${currentQueryString}`}>
+                    <Link className="hover:underline" href={`/${entry.id}${currentQueryString}`}>
                       {entry.title}
                     </Link>
                   </td>
@@ -199,7 +199,7 @@ export default async function PreviewListPage({ searchParams }: PreviewListPageP
               ? "pointer-events-none border-slate-200 text-slate-400"
               : "border-slate-300 text-slate-700 hover:bg-slate-100"
           }`}
-          href={`/preview${buildPreviewQueryString({ page: prevPage, search, editorialStatus, sort })}`}
+          href={`/${buildPreviewQueryString({ page: prevPage, search, editorialStatus, sort })}`}
         >
           Previous
         </Link>
@@ -214,7 +214,7 @@ export default async function PreviewListPage({ searchParams }: PreviewListPageP
               ? "pointer-events-none border-slate-200 text-slate-400"
               : "border-slate-300 text-slate-700 hover:bg-slate-100"
           }`}
-          href={`/preview${buildPreviewQueryString({ page: nextPage, search, editorialStatus, sort })}`}
+          href={`/${buildPreviewQueryString({ page: nextPage, search, editorialStatus, sort })}`}
         >
           Next
         </Link>
