@@ -16,6 +16,7 @@ concurrency:
 
 jobs:
   build:
+    environment: github-pages
     runs-on: ubuntu-latest
     env:
       CONTENTFUL_SPACE_ID: ${{ vars.CONTENTFUL_SPACE_ID }}
@@ -44,6 +45,13 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Validate Contentful token
+        run: |
+          if [ -z "${CONTENTFUL_PREVIEW_ACCESS_TOKEN}" ] && [ -z "${CONTENTFUL_DELIVERY_ACCESS_TOKEN}" ] && [ -z "${CONTENTFUL_ACCESS_TOKEN}" ]; then
+            echo "Missing Contentful token. Set one of: CONTENTFUL_PREVIEW_ACCESS_TOKEN, CONTENTFUL_DELIVERY_ACCESS_TOKEN, CONTENTFUL_ACCESS_TOKEN."
+            exit 1
+          fi
 
       - name: Build static site
         run: pnpm build
