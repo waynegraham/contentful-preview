@@ -78,12 +78,17 @@ export type ListQuery = {
 
 export const PAGE_SIZE = 50;
 
-const spaceId = process.env.CONTENTFUL_SPACE_ID ?? "t7x0vaz0zty0";
-const environment = process.env.CONTENTFUL_ENVIRONMENT ?? "master";
-const contentType = process.env.CONTENTFUL_CONTENT_TYPE_ID ?? alMadarContentTypeId;
-const previewToken = process.env.CONTENTFUL_PREVIEW_ACCESS_TOKEN;
-const deliveryToken = process.env.CONTENTFUL_DELIVERY_ACCESS_TOKEN;
-const accessToken = previewToken ?? deliveryToken ?? process.env.CONTENTFUL_ACCESS_TOKEN;
+function envValue(name: string): string | undefined {
+  const value = process.env[name]?.trim();
+  return value ? value : undefined;
+}
+
+const spaceId = envValue("CONTENTFUL_SPACE_ID") ?? "t7x0vaz0zty0";
+const environment = envValue("CONTENTFUL_ENVIRONMENT") ?? "master";
+const contentType = envValue("CONTENTFUL_CONTENT_TYPE_ID") ?? alMadarContentTypeId;
+const previewToken = envValue("CONTENTFUL_PREVIEW_ACCESS_TOKEN");
+const deliveryToken = envValue("CONTENTFUL_DELIVERY_ACCESS_TOKEN");
+const accessToken = previewToken ?? deliveryToken ?? envValue("CONTENTFUL_ACCESS_TOKEN");
 
 const host = previewToken ? "preview.contentful.com" : "cdn.contentful.com";
 const baseUrl = `https://${host}/spaces/${spaceId}/environments/${environment}`;
