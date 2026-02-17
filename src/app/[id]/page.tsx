@@ -13,14 +13,28 @@ import {
   getPreviewEntry,
   getSingleFieldValue,
 } from "@/lib/contentful";
+import {
+  type SearchParams,
+  buildPreviewQueryString,
+  normalizePreviewQuery,
+} from "@/lib/previewQuery";
 import { looksLikeHtml, sanitizeBasicHtml } from "@/lib/sanitizeHtml";
 
 type DetailPageProps = {
   params: Promise<{ id: string }>;
+  searchParams?: Promise<SearchParams> | SearchParams;
 };
 
 type ViewMode = "fields" | "template";
 type TemplateLanguage = "en" | "ar";
+
+function asString(value: string | string[] | undefined): string {
+  if (Array.isArray(value)) {
+    return value[0] ?? "";
+  }
+
+  return value ?? "";
+}
 
 function editorialPillClass(status: string): string {
   switch (status) {
@@ -148,15 +162,19 @@ export async function generateStaticParams() {
   return ids.map((id) => ({ id }));
 }
 
-export default async function PreviewDetailPage({ params }: DetailPageProps) {
+export default async function PreviewDetailPage({ params, searchParams }: DetailPageProps) {
   const { id } = await params;
-  const viewMode: ViewMode = "fields";
-  const templateLanguage: TemplateLanguage = "en";
-  const page = 1;
-  const search = "";
-  const queryEditorialStatus = "";
-  const sort = "updated-desc";
-  const currentQueryString = "";
+  const resolvedSearchParams = await Promise.resolve(searchParams ?? {});
+  const { page, search, editorialStatus: queryEditorialStatus, sort } =
+    normalizePreviewQuery(resolvedSearchParams);
+  const viewMode: ViewMode = asString(resolvedSearchParams.view) === "template" ? "template" : "fields";
+  const templateLanguage: TemplateLanguage = asString(resolvedSearchParams.lang) === "ar" ? "ar" : "en";
+  const currentQueryString = buildPreviewQueryString({
+    page,
+    search,
+    editorialStatus: queryEditorialStatus,
+    sort,
+  });
 
   let entry;
   try {
