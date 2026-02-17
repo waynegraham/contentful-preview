@@ -8,7 +8,7 @@ import {
 } from "@/lib/previewQuery";
 
 type PreviewListPageProps = {
-  searchParams?: Promise<SearchParams>;
+  searchParams?: SearchParams;
 };
 
 const SORT_OPTIONS = [
@@ -59,7 +59,7 @@ function contentStatusPillClass(status: string): string {
 }
 
 export default async function PreviewListPage({ searchParams }: PreviewListPageProps) {
-  const params = searchParams ? await searchParams : {};
+  const params = searchParams ?? {};
   const { page, search, editorialStatus, sort } = normalizePreviewQuery(params);
   const currentQueryString = buildPreviewQueryString({ page, search, editorialStatus, sort });
 

@@ -13,9 +13,9 @@ function firstValue(value: string | string[] | undefined): string {
 export default async function PreviewPage({
   searchParams,
 }: {
-  searchParams: Promise<SearchParams>;
+  searchParams: SearchParams;
 }) {
-  const params = await searchParams;
+  const params = searchParams;
   const nextParams = new URLSearchParams();
 
   for (const [key, value] of Object.entries(params)) {

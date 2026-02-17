@@ -21,8 +21,8 @@ import {
 import { looksLikeHtml, sanitizeBasicHtml } from "@/lib/sanitizeHtml";
 
 type DetailPageProps = {
-  params: Promise<{ id: string }>;
-  searchParams: Promise<SearchParams>;
+  params: { id: string };
+  searchParams: SearchParams;
 };
 
 type ViewMode = "fields" | "template";
@@ -171,8 +171,8 @@ export async function generateStaticParams() {
 }
 
 export default async function PreviewDetailPage({ params, searchParams }: DetailPageProps) {
-  const { id } = await params;
-  const resolvedSearchParams = await searchParams;
+  const { id } = params;
+  const resolvedSearchParams = searchParams;
   const viewMode = parseViewMode(asString(resolvedSearchParams.view));
   const templateLanguage = parseTemplateLanguage(asString(resolvedSearchParams.lang));
 

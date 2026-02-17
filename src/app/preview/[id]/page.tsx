@@ -4,8 +4,8 @@ import { getAllPreviewEntryIds } from "@/lib/contentful";
 import type { SearchParams } from "@/lib/previewQuery";
 
 type PreviewDetailRedirectPageProps = {
-  params: Promise<{ id: string }>;
-  searchParams: Promise<SearchParams>;
+  params: { id: string };
+  searchParams: SearchParams;
 };
 
 function firstValue(value: string | string[] | undefined): string {
@@ -25,8 +25,8 @@ export default async function PreviewDetailRedirectPage({
   params,
   searchParams,
 }: PreviewDetailRedirectPageProps) {
-  const { id } = await params;
-  const resolvedSearchParams = await searchParams;
+  const { id } = params;
+  const resolvedSearchParams = searchParams;
   const nextParams = new URLSearchParams();
 
   for (const [key, value] of Object.entries(resolvedSearchParams)) {
