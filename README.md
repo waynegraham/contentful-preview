@@ -22,22 +22,23 @@ CONTENTFUL_PREVIEW_ACCESS_TOKEN=your_preview_api_token
 pnpm dev
 ```
 
-### GitHub Pages deployment
+### Deploy on Vercel
 
-This repo includes `.github/workflows/deploy-pages.yml` to build and deploy on pushes to `main`.
+This project is a standard Next.js app and can be deployed directly to Vercel.
 
-1. Go to `Settings` -> `Pages` in the GitHub repo.
-2. Set `Build and deployment` -> `Source` to `GitHub Actions`.
-3. Go to `Settings` -> `Secrets and variables` -> `Actions`.
-4. Add repository secret:
+1. Import this GitHub repository in Vercel.
+2. Keep defaults for a Next.js project:
+   - Framework Preset: `Next.js`
+   - Build Command: `pnpm build`
+   - Install Command: `pnpm install`
+3. Add environment variables in `Project Settings` -> `Environment Variables`:
    - `CONTENTFUL_PREVIEW_ACCESS_TOKEN` (required)
-5. Add repository variables (optional, defaults are used if omitted):
-   - `CONTENTFUL_SPACE_ID`
-   - `CONTENTFUL_ENVIRONMENT`
-   - `CONTENTFUL_CONTENT_TYPE_ID`
-6. Push to `main` (or run the `Deploy to GitHub Pages` workflow manually from `Actions`).
+   - `CONTENTFUL_SPACE_ID` (optional, defaults are used if omitted)
+   - `CONTENTFUL_ENVIRONMENT` (optional, defaults are used if omitted)
+   - `CONTENTFUL_CONTENT_TYPE_ID` (optional, defaults are used if omitted)
+4. Deploy.
 
-Important: GitHub Pages is static hosting. Content is fetched at build time, so updates in Contentful appear after a new deployment.
+For production use, set the same variables for each environment you use in Vercel (`Production`, `Preview`, and `Development`).
 
 ### Routes
 
