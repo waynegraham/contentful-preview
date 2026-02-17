@@ -107,7 +107,8 @@ async function contentfulFetch<T>(path: string, searchParams?: URLSearchParams):
   ensureAccessToken();
 
   const query = searchParams && searchParams.size > 0 ? `?${searchParams}` : "";
-  const response = await fetch(`${baseUrl}${path}${query}`, {
+  const requestUrl = `${baseUrl}${path}${query}`;
+  const response = await fetch(requestUrl, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
@@ -115,7 +116,11 @@ async function contentfulFetch<T>(path: string, searchParams?: URLSearchParams):
   });
 
   if (!response.ok) {
-    throw new Error(`Contentful request failed (${response.status} ${response.statusText}) for ${path}`);
+    const responseText = await response.text();
+    const details = responseText ? ` Response: ${responseText.slice(0, 240)}` : "";
+    throw new Error(
+      `Contentful request failed (${response.status} ${response.statusText}) for ${path}. URL: ${requestUrl}.${details}`,
+    );
   }
 
   return (await response.json()) as T;

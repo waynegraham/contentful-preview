@@ -46,12 +46,23 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Validate Contentful token
+      - name: Validate Contentful configuration
         run: |
           if [ -z "${CONTENTFUL_PREVIEW_ACCESS_TOKEN}" ] && [ -z "${CONTENTFUL_DELIVERY_ACCESS_TOKEN}" ] && [ -z "${CONTENTFUL_ACCESS_TOKEN}" ]; then
             echo "Missing Contentful token. Set one of: CONTENTFUL_PREVIEW_ACCESS_TOKEN, CONTENTFUL_DELIVERY_ACCESS_TOKEN, CONTENTFUL_ACCESS_TOKEN."
             exit 1
           fi
+          if [ -z "${CONTENTFUL_SPACE_ID}" ]; then
+            echo "Missing CONTENTFUL_SPACE_ID (Actions variable in environment: github-pages)."
+            exit 1
+          fi
+          if [ -z "${CONTENTFUL_CONTENT_TYPE_ID}" ]; then
+            echo "Missing CONTENTFUL_CONTENT_TYPE_ID (Actions variable in environment: github-pages)."
+            exit 1
+          fi
+          echo "Using Contentful space: ${CONTENTFUL_SPACE_ID}"
+          echo "Using Contentful environment: ${CONTENTFUL_ENVIRONMENT:-master}"
+          echo "Using Contentful content type: ${CONTENTFUL_CONTENT_TYPE_ID}"
 
       - name: Build static site
         run: pnpm build
