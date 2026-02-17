@@ -13,16 +13,10 @@ import {
   getPreviewEntry,
   getSingleFieldValue,
 } from "@/lib/contentful";
-import {
-  type SearchParams,
-  buildPreviewQueryString,
-  normalizePreviewQuery,
-} from "@/lib/previewQuery";
 import { looksLikeHtml, sanitizeBasicHtml } from "@/lib/sanitizeHtml";
 
 type DetailPageProps = {
-  params: { id: string };
-  searchParams: SearchParams;
+  params: Promise<{ id: string }>;
 };
 
 type ViewMode = "fields" | "template";
@@ -66,22 +60,6 @@ function formatDate(value: string): string {
 
 function withFallback(value: string): string {
   return value || "-";
-}
-
-function asString(value: string | string[] | undefined): string {
-  if (Array.isArray(value)) {
-    return value[0] ?? "";
-  }
-
-  return value ?? "";
-}
-
-function parseViewMode(value: string): ViewMode {
-  return value === "template" ? "template" : "fields";
-}
-
-function parseTemplateLanguage(value: string): TemplateLanguage {
-  return value === "ar" ? "ar" : "en";
 }
 
 function buildDetailQueryString(query: {
@@ -170,25 +148,15 @@ export async function generateStaticParams() {
   return ids.map((id) => ({ id }));
 }
 
-export default async function PreviewDetailPage({ params, searchParams }: DetailPageProps) {
-  const { id } = params;
-  const resolvedSearchParams = searchParams;
-  const viewMode = parseViewMode(asString(resolvedSearchParams.view));
-  const templateLanguage = parseTemplateLanguage(asString(resolvedSearchParams.lang));
-
-  const {
-    page,
-    search,
-    editorialStatus: queryEditorialStatus,
-    sort,
-  } = normalizePreviewQuery(resolvedSearchParams);
-
-  const currentQueryString = buildPreviewQueryString({
-    page,
-    search,
-    editorialStatus: queryEditorialStatus,
-    sort,
-  });
+export default async function PreviewDetailPage({ params }: DetailPageProps) {
+  const { id } = await params;
+  const viewMode: ViewMode = "fields";
+  const templateLanguage: TemplateLanguage = "en";
+  const page = 1;
+  const search = "";
+  const queryEditorialStatus = "";
+  const sort = "updated-desc";
+  const currentQueryString = "";
 
   let entry;
   try {

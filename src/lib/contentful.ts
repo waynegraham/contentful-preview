@@ -112,7 +112,6 @@ async function contentfulFetch<T>(path: string, searchParams?: URLSearchParams):
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
-    next: { revalidate: 0 },
   });
 
   if (!response.ok) {
