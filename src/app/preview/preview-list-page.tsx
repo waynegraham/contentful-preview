@@ -84,7 +84,7 @@ export default async function PreviewListPage({ searchParams }: PreviewListPageP
           Internal read-only preview for editorial review. Showing {response.items.length} of {response.total} entries.
         </p>
 
-        <form className="mt-6 grid gap-3 md:grid-cols-4" action="/preview" method="get">
+        <form className="mt-6 grid gap-3 md:grid-cols-5" action="/preview" method="get">
           <input
             type="text"
             name="q"
@@ -124,6 +124,13 @@ export default async function PreviewListPage({ searchParams }: PreviewListPageP
           >
             Apply
           </button>
+
+          <Link
+            href="/preview"
+            className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+          >
+            Reset filters
+          </Link>
         </form>
       </section>
 
